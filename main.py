@@ -1,3 +1,10 @@
+#Importing the random module to create the unique account numbers
+import random
+def unique():
+    return ''.join(str(random.randint(0,9)) for _ in range(9))
+unique_id = unique()
+print(unique_id)
+
 #"Banking System"
 print('Welcome to the bank "XYZ" ')
 
@@ -39,16 +46,18 @@ with open("/home/mehr-ali/Documents/Banking System/usersdata.txt", "r") as file:
     for data in file:
         data = data.strip()
         if data:
-            username, password, pin, initial_deposit = data.split(",")
-            userdata.append((username, password, pin, initial_deposit))
+            username, password, fullname, pin, initial_deposit, unique_id = data.split(",")
+            userdata.append((username, password, fullname, pin, initial_deposit, unique_id))
 
 #Creating the signup function for the new users
 class Signup():
-    def __init__(self, username, password, pin, initial_deposit):
+    def __init__(self, username, password, fullname, pin, initial_deposit, unique_id):
         self.username = username
         self.password = password
         self.pin = pin
         self.initial_deposit = initial_deposit
+        self.unique_id = unique_id
+        self.fullname = fullname
 
 #Creating logic for the user's input for the signup using a function
 def signup():
@@ -61,10 +70,16 @@ def signup():
             print("Username must not be empty")
             continue
         break
-    password = input("Enter your password: ")
     while True:
+        password = input("Enter your password: ")
         if password == "":
             print("Password must not be empty")
+            continue
+        break
+    while True:
+        fullname = input("Enter your Full Name: ")
+        if fullname == "":
+            print("Fullname can't be empty")
             continue
         break
     while True:
@@ -87,17 +102,19 @@ def signup():
         break
     #Adding the input into the file
     with open("/home/mehr-ali/Documents/Banking System/usersdata.txt", "a") as file:
-        file.write(f"{username},{password},{pin},{initial_deposit}\n")
+        file.write(f"{username},{password},{fullname},{pin},{initial_deposit},{unique_id}\n")
 
     #Printing the message after successful signup
     print("Account was created successfully")
     #Now calling the class as everything is defined now completly.
-    signup_user = Signup(username, password, pin, initial_deposit)
+    signup_user = Signup(username, password, fullname, pin, initial_deposit, unique_id)
     #Showing the input to the user after their account creation
     print(f"Your Username is {signup_user.username}")
     print(f"Your Password is {signup_user.password}")
+    print(f"Your Full Name is {signup_user.fullname}")
     print(f"Your PIN is {signup_user.pin}")
     print(f"Your Initial Deposit is {signup_user.initial_deposit}$")
+    print(f"Your Banking ID is {signup_user.unique_id}")
 
 #Calling the menu function for the signup option
 if user == "signup":
