@@ -2,11 +2,14 @@
 import random
 def unique():
     return ''.join(str(random.randint(0,9)) for _ in range(9))
-unique_id = unique()
-print(unique_id)
 
 #"Banking System"
 print('Welcome to the bank "XYZ" ')
+
+#Creating the balance check function for the user for the option of menu
+balance = 0
+def balance_check(balance):
+    print(f"Your balance is {balance}")
 
 #Initialization of user's input for Signup/Login
 print("Select an option to continue" "\n"
@@ -22,7 +25,7 @@ while True:
         break
 
 #Creating the menu function for the  users to initialize the menu settings
-def user_menu_call():
+def user_menu_call(balance):
     print("Select an option to continue" "\n"
     "1. Deposit Ammount" "\n"
     "2. Withdraw Ammount" "\n"
@@ -34,7 +37,10 @@ def user_menu_call():
         if user_menu not in ("depositammount", "withdrawammount", "checkbalance", "sharebalance", "exit"):
             print("Invalid Action, try again")
             continue
-        if user_menu == "exit":
+        if user_menu == "checkbalance":
+            balance_check(balance)
+            continue
+        elif user_menu == "exit":
             print("Thanks for using XYZ Bank")
             return
         else:
@@ -47,6 +53,9 @@ with open("/home/mehr-ali/Documents/Banking System/usersdata.txt", "r") as file:
         data = data.strip()
         if data:
             username, password, fullname, pin, initial_deposit, unique_id = data.split(",")
+            pin = int(pin)
+            initial_deposit = int(initial_deposit)
+            unique_id = int(unique_id)
             userdata.append((username, password, fullname, pin, initial_deposit, unique_id))
 
 #Creating the signup function for the new users
@@ -61,6 +70,7 @@ class Signup():
 
 #Creating logic for the user's input for the signup using a function
 def signup():
+    unique_id = unique()
     while True:
         username = input("Enter your username: ").lower().strip()
         if any(username == user[0] for user in userdata):
@@ -115,11 +125,7 @@ def signup():
     print(f"Your PIN is {signup_user.pin}")
     print(f"Your Initial Deposit is {signup_user.initial_deposit}$")
     print(f"Your Banking ID is {signup_user.unique_id}")
-
-#Calling the menu function for the signup option
-if user == "signup":
-    if signup():
-        user_menu_call()
+    return signup_user
 
 #Making the Login Function
 def login():
@@ -137,18 +143,29 @@ def login():
         if password_login == "":
             print("Password must not be empty")
             continue
-        for user, password, pin, initial_deposit in userdata:
+        for user_data in userdata:
+            user, password, fullname, pin, initial_deposit, unique_id = user_data
             if user == username_login:
                 if password == password_login:
                     print("Login Successfull")
-                    return True
+                    return user_data
                 else:
                     print("Password didn't matched")
                 break
-#Calling the menu function login for the login option
-if user == "login":
-    if login() == True:
-        user_menu_call()
+
+
+#Calling the menu function for the signup option
+if user == "signup":
+    new_user = signup()
+    balance = new_user.initial_deposit
+    user_menu_call(balance)
+
+#Loading the user's deposit ammount into the list also calling the function
+elif user == "login":
+    logged_user = login()
+    if logged_user:
+        balance = logged_user[4]
+        user_menu_call(balance)
 
 #Using the exit function at the initial point of the bank
 if user == "exit":
