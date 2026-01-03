@@ -6,3 +6,4 @@ This is my Banking System.
 -> I have created the function to give each user a unique id
 -> I have created a function for the users to see their balance
 -> I have created a function for the users to deposit amount in their account
+-> I have created a function for the users to withdraw their amount in their account

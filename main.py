@@ -43,6 +43,8 @@ def user_menu_call(balance):
         elif user_menu == "depositamount":
             balance = deposit(logged_username, balance)
             continue
+        elif user_menu == "withdrawamount":
+            withdraw(logged_username, balance)
         elif user_menu == "exit":
             print("Thanks for using XYZ Bank")
             return
@@ -175,6 +177,34 @@ def deposit(logged_user, balance):
         break
     balance += amount
     print(f"You entered the amount of {amount}$.Total balance is now {balance}$")
+    with open("/home/mehr-ali/Documents/Banking System/usersdata.txt", "w") as file:
+        for i, user in enumerate(userdata):
+            u, p, f, pin, dep, uid = user
+            if u == logged_user:
+                dep = balance
+                userdata[i] = (u, p, f, pin, dep, uid)
+            file.write(f"{u},{p},{f},{pin},{dep},{uid}\n")
+        return balance
+#Creating the function for the user to withdraw their ammount
+def withdraw(logged_user, balance):
+    while True:
+        amount_input = input("Enter the amount you want to withdraw: ").strip()
+        if amount_input == "":
+            print("Amount can't be empty, try again.")
+            continue
+        if not amount_input.isdigit():
+            print("Amount must be in numeric form, try again.")
+            continue
+        amount = int(amount_input)
+        if amount <= 0:
+            print("Invalid amount entered, try again.")
+            continue
+        if amount > balance:
+            print("Insufficient Balance, try again")
+            continue
+        break
+    balance -= amount
+    print(f"You have withdrawn {amount}$. Remaining balance is {balance}$")
     with open("/home/mehr-ali/Documents/Banking System/usersdata.txt", "w") as file:
         for i, user in enumerate(userdata):
             u, p, f, pin, dep, uid = user
