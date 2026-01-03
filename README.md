@@ -5,3 +5,4 @@ This is my Banking System.
 -> I have added two new fucntions for signup and login with error handling
 -> I have created the function to give each user a unique id
 -> I have created a function for the users to see their balance
+-> I have created a function for the users to deposit amount in their account
