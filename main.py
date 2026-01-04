@@ -45,6 +45,9 @@ def user_menu_call(balance):
             continue
         elif user_menu == "withdrawamount":
             withdraw(logged_username, balance)
+            continue
+        elif user_menu == "sharebalance":
+            transfer_amount(logged_username, balance)
         elif user_menu == "exit":
             print("Thanks for using XYZ Bank")
             return
@@ -213,6 +216,50 @@ def withdraw(logged_user, balance):
                 userdata[i] = (u, p, f, pin, dep, uid)
             file.write(f"{u},{p},{f},{pin},{dep},{uid}\n")
         return balance
+    
+#Creating a function to send money across different users
+def transfer_amount(logged_user, balance):
+    while True:
+        account_send = int(input("Enter the account number on which you want to send amount: "))
+        if not any(account_send == user[5] for user in userdata):
+            print("Account not found, try again")
+            continue
+        else:
+            break
+    while True:
+        amount_sent = input(f"Enter the amount you want to send to the {account_send}: ")
+        if not amount_sent.isdigit():
+            print("Amount must be numeric: ")
+            continue
+        amount = int(amount_sent)
+        if amount > balance:
+            print("Not Enough Balance, try again")
+            continue
+        else:
+            break
+    pin_ok = False
+    pin_sent = int(input("Enter your PIN: "))
+    for u, p, f, pin, dep, uid in userdata:
+        if u == logged_user:
+            if pin == pin_sent:
+                pin_ok = True
+            break
+    if not pin_ok:
+        print("Wrong PIN")
+        return balance
+    balance -= amount
+    print(f"{amount}$ were sent to the user {account_send}")
+    for i, user in enumerate(userdata):
+        u, p, f, pin, dep, uid = user
+        if u == logged_user:
+            userdata[i] = (u, p, f, pin, dep - amount, uid)
+        elif uid == account_send:
+            userdata[i] = (u, p, f, pin, dep + amount, uid)
+    with open("/home/mehr-ali/Documents/Banking System/usersdata.txt", "w") as file:
+        for u, p, f, pin, dep, uid in userdata:
+            file.write(f"{u},{p},{f},{pin},{dep},{uid}\n")
+    print("Transfer Successful")
+    return balance
 
 #Calling the menu function for the signup option
 if user == "signup":
