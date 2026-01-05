@@ -3,6 +3,9 @@ import random
 def unique():
     return ''.join(str(random.randint(0,9)) for _ in range(9))
 
+#Importing the datetime module for the user's transactions, deposits and withdraws
+from datetime import datetime
+
 #"Banking System"
 print('Welcome to the bank "XYZ" ')
 
@@ -31,10 +34,11 @@ def user_menu_call(balance):
     "2. Withdraw Amount" "\n"
     "3. Check Balance" "\n"
     "4. Share Balance" "\n"
+    "4. Transaction History" "\n"
     "5. Exit")
     while True:
         user_menu = input("Enter the option: ").lower().strip()
-        if user_menu not in ("depositamount", "withdrawamount", "checkbalance", "sharebalance", "exit"):
+        if user_menu not in ("depositamount", "withdrawamount", "checkbalance", "sharebalance", "transactionhistory", "exit"):
             print("Invalid Action, try again")
             continue
         if user_menu == "checkbalance":
@@ -44,10 +48,12 @@ def user_menu_call(balance):
             balance = deposit(logged_username, balance)
             continue
         elif user_menu == "withdrawamount":
-            withdraw(logged_username, balance)
+            balance = withdraw(logged_username, balance)
             continue
         elif user_menu == "sharebalance":
-            transfer_amount(logged_username, balance)
+            balance = transfer_amount(logged_username, balance)
+        elif user_menu == "transactionhistory":
+            transaction_history(logged_username)
         elif user_menu == "exit":
             print("Thanks for using XYZ Bank")
             return
@@ -65,6 +71,25 @@ with open("/home/mehr-ali/Documents/Banking System/usersdata.txt", "r") as file:
             balance = int(balance)
             unique_id = int(unique_id)
             userdata.append((username, password, fullname, pin, balance, unique_id))
+
+#Creating an empty list for the users to see their transactions for deposit and withdraw
+transactions = []
+with open("/home/mehr-ali/Documents/Banking System/transactionhistory.txt", "r") as file:
+    for data in file:
+        if data:
+            logged_user, amount, time = data.split(",")
+            amount = int(amount)
+            transactions.append((logged_user, amount, time))
+
+#Creating an empty list for the users to see their transactions for sharing balance
+transactions_share = []
+with open("/home/mehr-ali/Documents/Banking System/transactionhistoryshare.txt", "r") as file:
+    for data in file:
+        if data:
+            logged_user, amount, account_send, time = data.split(",")
+            amount = int(amount)
+            account_send = int(account_send)
+            transactions_share.append((logged_user, amount, account_send, time))
 
 #Creating the signup function for the new users
 class Signup():
@@ -124,7 +149,7 @@ def signup():
 
     #Printing the message after successful signup
     print("Account was created successfully")
-    #Now calling the class as everything is defined now completly.
+    #time calling the class as everything is defined time completly.
     signup_user = Signup(username, password, fullname, pin, balance, unique_id)
     #Showing the input to the user after their account creation
     print(f"Your Username is {signup_user.username}")
@@ -163,6 +188,7 @@ def login():
 
 #Creating the balance function to balance ammount in the user's account
 def deposit(logged_user, balance):
+    time = datetime.now()
     while True:
         amount_input = input("Enter the amount you want to enter in your account: ").strip()
         if amount_input == "":
@@ -179,7 +205,7 @@ def deposit(logged_user, balance):
             continue
         break
     balance += amount
-    print(f"You entered the amount of {amount}$.Total balance is now {balance}$")
+    print(f"You entered the amount of {amount}$.Total balance is time {balance}$")
     with open("/home/mehr-ali/Documents/Banking System/usersdata.txt", "w") as file:
         for i, user in enumerate(userdata):
             u, p, f, pin, dep, uid = user
@@ -187,9 +213,12 @@ def deposit(logged_user, balance):
                 dep = balance
                 userdata[i] = (u, p, f, pin, dep, uid)
             file.write(f"{u},{p},{f},{pin},{dep},{uid}\n")
+    with open("/home/mehr-ali/Documents/Banking System/transactionhistory.txt", "a") as file:
+        file.write(f"{logged_user},{amount},{time}\n")
         return balance
 #Creating the function for the user to withdraw their ammount
 def withdraw(logged_user, balance):
+    time = datetime.now()
     while True:
         amount_input = input("Enter the amount you want to withdraw: ").strip()
         if amount_input == "":
@@ -215,10 +244,13 @@ def withdraw(logged_user, balance):
                 dep = balance
                 userdata[i] = (u, p, f, pin, dep, uid)
             file.write(f"{u},{p},{f},{pin},{dep},{uid}\n")
+    with open("/home/mehr-ali/Documents/Banking System/transactionhistory.txt", "a") as file:
+        file.write(f"{logged_user},{amount},{time}$\n")
         return balance
     
 #Creating a function to send money across different users
 def transfer_amount(logged_user, balance):
+    time = datetime.now()
     while True:
         account_send = int(input("Enter the account number on which you want to send amount: "))
         if not any(account_send == user[5] for user in userdata):
@@ -243,7 +275,7 @@ def transfer_amount(logged_user, balance):
         if u == logged_user:
             if pin == pin_sent:
                 pin_ok = True
-            break
+                break
     if not pin_ok:
         print("Wrong PIN")
         return balance
@@ -258,8 +290,48 @@ def transfer_amount(logged_user, balance):
     with open("/home/mehr-ali/Documents/Banking System/usersdata.txt", "w") as file:
         for u, p, f, pin, dep, uid in userdata:
             file.write(f"{u},{p},{f},{pin},{dep},{uid}\n")
+    with open("/home/mehr-ali/Documents/Banking System/transactionhistoryshare.txt", "a") as file:
+        file.write(f"{logged_user},{amount},{account_send},{time}\n")
     print("Transfer Successful")
     return balance
+
+#Creating a function for the users to see their transactions
+def transaction_history(logged_user):
+    time = datetime.now()
+    while True:
+        user_history = input("Which history you want to see" "\n"
+        "1. Deposit" "\n"
+        "2. Withdraw" "\n"
+        "3. Share Balance: ").lower()
+        if user_history not in ("deposit","withdraw","sharebalance"):
+            print("Invalid action, try again")
+            continue
+        else:
+            break
+    if user_history == "deposit":
+        found = None
+        for user, amount, time in transactions:
+            if user == logged_user:
+                print(f"{user} deposited {amount} at {time}\n")
+                found = True
+        if not found:
+            print("No history of transactions")
+    if user_history == "withdraw":
+        found = None
+        for user, amount, time in transactions:
+            if user == logged_user:
+                print(f"{user} withdrawn {amount} at {time}\n")
+                found = True
+        if not found:
+            print("No history of transactions")
+    if user_history == "sharebalance":
+        found = None
+        for user, amount, account, time in transactions_share:
+            if user == logged_user:
+                print(f"{user} sent {amount}$ to {account} at {time}\n")
+                found = True
+        if not found:
+            print("No history of transactions")
 
 #Calling the menu function for the signup option
 if user == "signup":
